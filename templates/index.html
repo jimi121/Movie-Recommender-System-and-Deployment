@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommendation System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        @font-face {
+            font-family: 'Gagalin';
+            src: url('{{ url_for('static', filename='fonts/Gagalin-Regular.ttf') }}');
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            background: none; /* Remove general background */
+        }
+        .video-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh; /* Full screen height */
+            overflow: hidden;
+            z-index: -1;
+        }
+        .video-header .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+        .video-header iframe {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            pointer-events: none;
+            object-fit: cover;
+        }
+        .header-content {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            text-align: center;
+            color: white;
+            padding: 20px;
+            background-color: red;
+            border-radius: 10px;
+        }
+        .movie-title-overlay {
+            position: absolute;
+            top: 10%;
+            left: 5%;
+            z-index: 3;
+            font-family: 'Gagalin', sans-serif;
+            font-size: 6em;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            white-space: pre-wrap; /* Allow text wrapping */
+        }
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 3;
+            width: 150px; /* Adjust the size as needed */
+        }
+        .content-container {
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            margin-top: 100vh; /* Push the content below the full-screen header */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .search-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 3;
+            cursor: pointer;
+            width: 60px; /* Increase the size of the search gif */
+            height: 60px; /* Increase the size of the search gif */
+        }
+        .search-form {
+            position: absolute;
+            display: none;
+            align-items: center;
+            background-color: red; /* Red background */
+            padding: 10px;
+            border-radius: 30px; /* Round corners */
+            z-index: 4; /* Ensure search form is above other elements while dragging */
+            top: 20px;
+            right: 20px;
+            width: 400px; /* Set the fixed width of the search bar */
+        }
+        .search-form input[type="text"] {
+            width: 0;
+            padding: 10px;
+            font-size: 1em;
+            border: none;
+            outline: none;
+            background: white;
+            color: black;
+            transition: width 0.5s ease;
+            border-radius: 30px; /* Round corners */
+        }
+        .search-form input[type="text"]:focus {
+            width: 300px; /* Adjust width as needed */
+            background-color: white;
+        }
+        .search-form button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: 10px;
+            color: white; /* Change the text color to white */
+            font-size: 1em;
+        }
+        .suggestions {
+            position: absolute;
+            z-index: 3;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none; /* Initially hidden */
+            background: red;
+            color: white;
+            border-radius: 0 0 5px 5px;
+        }
+        .suggestion-item {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .suggestion-item:hover {
+            background: #ff4d4d;
+        }
+        .movie-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .movie-row {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+        }
+        .movie-item {
+            text-align: center;
+            min-width: 200px; /* Increased width */
+            flex: 0 0 auto;
+            background: transparent; /* Transparent background */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .movie-item img {
+            width: 200px; /* Increased width */
+            height: 300px; /* Increased height */
+            object-fit: cover; /* Ensure the image covers the entire area */
+        }
+        .movie-item .view-details-button,
+        .movie-item .watch-now-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            width: 200px; /* Match the width of the movie thumbnail */
+            font-size: 1em;
+            border-radius: 5px;
+        }
+        .movie-item .watch-now-button {
+            background: red;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Increased min width */
+            gap: 20px;
+        }
+        #main-movie {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .movie-details {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .movie-details iframe, .movie-details img {
+            margin-bottom: 20px;
+        }
+        .movie-info {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 20px;
+        }
+        .movie-info img {
+            width: 300px;
+            height: auto;
+        }
+        .movie-info div {
+            max-width: 600px;
+        }
+        .section-title {
+            color: white;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+    <header class="video-header">
+        <div class="overlay"></div>
+        <div class="movie-title-overlay" id="movie-title">{{ trailer_title }}</div>
+        <div id="background-video"></div>
+    </header>
+    <button id="play-pause-button" onclick="toggleTrailer()">Pause</button>
+
+    <script>
+        var player;
+
+        // Load the YouTube IFrame API
+        function loadYouTubeAPI() {
+            var tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/iframe_api";
+            var firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        }
+
+        // This function is called when the API is ready
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('background-video', {
+                height: '100%',
+                width: '100%',
+                videoId: '{{ trailer_url.split("embed/")[1] if trailer_url else "" }}',
+                playerVars: {
+                    'autoplay': 1,
+                    'loop': 1,
+                    'playlist': '{{ trailer_url.split("embed/")[1] if trailer_url else "" }}',
+                    'controls': 0,
+                    'modestbranding': 1,
+                    'rel': 0,
+                    'showinfo': 0
+                },
+                events: {
+                    'onReady': onPlayerReady
+                }
+            });
+        }
+
+        // This function is called when the player is ready
+        function onPlayerReady(event) {
+            console.log("Player is ready");
+        }
+
+        // Toggle play/pause
+        function toggleTrailer() {
+            if (player && typeof player.getPlayerState === 'function') {
+                const button = document.getElementById('play-pause-button');
+                if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+                    player.pauseVideo();
+                    button.innerText = 'Play';
+                } else {
+                    player.playVideo();
+                    button.innerText = 'Pause';
+                }
+            } else {
+                console.error("Player is not initialized.");
+            }
+        }
+
+        // Load the YouTube API when the page loads
+        loadYouTubeAPI();
+    </script>
+
+    <img src="{{ url_for('static', filename='img/MovixCloud.gif') }}" alt="Logo" class="logo"> <!-- Logo added here -->
+    <img src="{{ url_for('static', filename='search.gif') }}" alt="Search" class="search-icon" id="search-icon">
+    <form id="search-form" class="search-form">
+        <input type="text" name="query" id="search-input" placeholder="Search for a movie, tv show, person..." autocomplete="off">
+        <button type="submit" id="search-button">Search</button>
+    </form>
+    <div id="suggestions" class="suggestions"></div>
+    <div class="content-container" style="background: none;">
+        <div id="search-results">
+            <h2 class="section-title">Search Results</h2>
+            <div id="search-results-list" class="movie-grid"></div>
+        </div>
+        <div id="default-movies">
+            <h2 class="section-title">Top 10 Movies in the U.S. Today</h2>
+            <div id="top-10-movies-list" class="movie-row"></div>
+            <h2 class="section-title">Trending</h2>
+            <div id="trending-movies-list" class="movie-row"></div>
+            <h2 class="section-title">Popular Trailers</h2>
+            <div id="latest-trailers-list" class="movie-row"></div>
+            <h2 class="section-title">People Also Watch</h2>
+            <div id="people-also-watch-list" class="movie-grid"></div>
+        </div>
+        <div id="recommendations" style="display: none;">
+            <h2 class="section-title">Recommended Movies</h2>
+            <div id="main-movie" class="movie-item"></div>
+            <div id="recommendations-list" class="movie-row"></div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

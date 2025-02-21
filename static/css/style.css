@@ -1,0 +1,250 @@
+body {
+    font-family: Arial, sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background: none; /* Remove general background */
+}
+
+.video-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh; /* Full screen height */
+    overflow: hidden;
+    z-index: -1;
+}
+
+.video-header .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+
+.video-header iframe {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    pointer-events: none;
+    object-fit: cover;
+}
+
+.header-content {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    text-align: center;
+    color: white;
+    padding: 20px;
+    background-color: red;
+    border-radius: 10px;
+}
+
+.search-icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 3;
+    cursor: pointer;
+    width: 60px; /* Increase the size of the search gif */
+    height: 60px; /* Increase the size of the search gif */
+}
+
+.search-form {
+    position: absolute;
+    display: none;
+    align-items: center;
+    background-color: red;
+    padding: 10px;
+    border-radius: 30px; /* Round corners */
+    z-index: 4; /* Ensure search form is above other elements while dragging */
+    top: 20px;
+    right: 20px;
+    width: 400px; /* Set the fixed width of the search bar */
+}
+.search-form input[type="text"] {
+    width: 0;
+    padding: 10px;
+    font-size: 1em;
+    border: none;
+    outline: none;
+    background: white;
+    color: black;
+    transition: width 0.5s ease;
+    border-radius: 30px; /* Round corners */
+}
+
+.search-form input[type="text"]:focus {
+    width: 300px; /* Adjust width as needed */
+    background-color: white;
+}
+
+.search-form button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.search-form button img {
+    width: 20px;
+    height: 20px;
+}
+
+.suggestions {
+    position: absolute;
+    z-index: 3;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none; /* Initially hidden */
+    background: red;
+    color: white;
+    border-radius: 0 0 5px 5px;
+}
+
+.suggestion-item {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.suggestion-item:hover {
+    background: #ff4d4d;
+}
+
+.content-container {
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    margin-top: 100vh; /* Push the content below the full-screen header */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    background: none; /* Remove background */
+}
+
+h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+p {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+}
+
+.movie-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.movie-row {
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
+}
+
+.movie-item {
+    text-align: center;
+    min-width: 200px; /* Increased width */
+    flex: 0 0 auto;
+    background: transparent; /* Transparent background */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative; /* Added for positioning the number */
+}
+
+.movie-item img {
+    width: 200px; /* Increased width */
+    height: 300px; /* Increased height */
+    object-fit: cover; /* Ensure the image covers the entire area */
+}
+
+.movie-item .view-details-button,
+.movie-item .watch-now-button,
+.movie-item .recently-added-button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background: red; /* Solid red background for Watch Now button */
+    color: white;
+    border: none;
+    cursor: pointer;
+    width: 200px; /* Match the width of the movie thumbnail */
+    font-size: 1em;
+    border-radius: 5px;
+}
+
+.movie-item .watch-now-button {
+    background: red; /* Solid red background */
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Increased min width */
+    gap: 20px;
+}
+
+#main-movie {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.movie-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.movie-details iframe, .movie-details img {
+    margin-bottom: 20px;
+}
+
+.movie-info {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.movie-info img {
+    width: 300px;
+    height: auto;
+}
+
+.movie-info div {
+    max-width: 600px;
+}
+
+.section-title {
+    color: white;
+    font-weight: bold;
+}
+
+.top-movie-number {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: black;
+    color: white;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
+    font-weight: bold;
+}
+
+

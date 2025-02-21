@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        @font-face {
+            font-family: 'Gagalin';
+            src: url('{{ url_for('static', filename='fonts/Gagalin-Regular.ttf') }}');
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            background: none; /* Remove general background */
+        }
+        .video-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh; /* Full screen height */
+            overflow: hidden;
+            z-index: -1;
+        }
+        .video-header .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+        .video-header iframe {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            pointer-events: none;
+            object-fit: cover;
+        }
+        .movie-title-overlay {
+            position: absolute;
+            top: 10%;
+            left: 5%;
+            z-index: 3;
+            font-family: 'Gagalin', sans-serif;
+            font-size: 6em;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            white-space: pre-wrap; /* Allow text wrapping */
+        }
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 3;
+            width: 150px; /* Adjust the size as needed */
+        }
+        .content-container {
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            margin-top: 100vh; /* Push the content below the full-screen header */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .movie-details {
+            display: flex;
+            flex-direction: row; /* Change to row to align image and details horizontally */
+            align-items: flex-start; /* Align items to the start */
+            color: white; /* Make text white */
+            gap: 20px; /* Add space between the image and the text */
+        }
+        .movie-info {
+            display: flex;
+            flex-direction: column; /* Change to column to align text vertically */
+            align-items: flex-start;
+            gap: 20px;
+            color: white; /* Make text white */
+        }
+        .movie-info img {
+            width: 300px;
+            height: auto;
+            margin-right: 20px; /* Add some space between the image and the details */
+        }
+        .movie-info div {
+            max-width: 600px;
+            text-align: left; /* Align text to the left */
+        }
+        .section-title {
+            color: white;
+            font-weight: bold;
+        }
+        .movie-item {
+            text-align: center;
+            min-width: 200px; /* Increased width */
+            flex: 0 0 auto;
+            background: transparent; /* Transparent background */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .movie-item img {
+            width: 200px; /* Increased width */
+            height: 300px; /* Increased height */
+            object-fit: cover; /* Ensure the image covers the entire area */
+        }
+        .movie-item .view-details-button,
+        .movie-item .watch-now-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: red; /* Solid red background */
+            color: white;
+            border: none;
+            cursor: pointer;
+            width: 200px; /* Match the width of the movie thumbnail */
+            font-size: 1em;
+            border-radius: 5px;
+        }
+        .movie-item .watch-now-button {
+            background: red;
+        }
+        .top-cast {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .cast-item {
+            text-align: center;
+        }
+        .cast-item img {
+            width: 150px;
+            height: 225px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .cast-item p {
+            margin: 5px 0;
+            color: white;
+        }
+
+
+    </style>
+</head>
+<body>
+    <header class="video-header">
+        <div class="overlay"></div>
+        <div class="movie-title-overlay" id="movie-title">{{ movie.title }}</div>
+        <div id="background-video"></div>
+    </header>
+    <button id="play-pause-button" onclick="toggleTrailer()">Pause</button>
+
+    <script>
+        var player;
+
+        // Load the YouTube IFrame API
+        function loadYouTubeAPI() {
+            var tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/iframe_api";
+            var firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        }
+
+        // This function is called when the API is ready
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('background-video', {
+                height: '100%',
+                width: '100%',
+                videoId: '{{ trailer_url.split("embed/")[1] if trailer_url else "" }}',
+                playerVars: {
+                    'autoplay': 1,
+                    'loop': 1,
+                    'playlist': '{{ trailer_url.split("embed/")[1] if trailer_url else "" }}',
+                    'controls': 0,
+                    'modestbranding': 1,
+                    'rel': 0,
+                    'showinfo': 0
+                },
+                events: {
+                    'onReady': onPlayerReady
+                }
+            });
+        }
+
+        // This function is called when the player is ready
+        function onPlayerReady(event) {
+            console.log("Player is ready");
+        }
+
+        // Toggle play/pause
+        function toggleTrailer() {
+            if (player && typeof player.getPlayerState === 'function') {
+                const button = document.getElementById('play-pause-button');
+                if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+                    player.pauseVideo();
+                    button.innerText = 'Play';
+                } else {
+                    player.playVideo();
+                    button.innerText = 'Pause';
+                }
+            } else {
+                console.error("Player is not initialized.");
+            }
+        }
+
+        // Load the YouTube API when the page loads
+        loadYouTubeAPI();
+    </script>
+
+    <img src="{{ url_for('static', filename='img/MovixCloud.gif') }}" alt="Logo" class="logo"> <!-- Logo added here -->
+    <div class="content-container" style="background: none;">
+        <div class="movie-details">
+            <img src="https://image.tmdb.org/t/p/w300{{ movie.poster_path }}" alt="{{ movie.title }}">
+            <div class="movie-info">
+                <div>
+                    <h1>{{ movie.title }}</h1>
+                    <p><strong>Genre:</strong> {{ movie.genres }}</p>
+                    <p><strong>Year:</strong> {{ movie.release_date }}</p>
+                    <p><strong>Top Cast:</strong> {{ top_cast | join(', ') }}</p>
+                    <p><strong>Original Language:</strong> {{ movie.original_language }}</p>
+                    <p><strong>Status:</strong> {{ movie.status }}</p>
+                    <p><strong>Budget:</strong> ${{ movie.budget }}</p>
+                    <p><strong>Summary:</strong> {{ movie.overview }}</p>
+
+                </div>
+            </div>
+        </div>
+        <h2 class="section-title">Top Billed Cast</h2>
+        <div class="top-cast">
+            {% for cast in top_cast_photos %}
+            <div class="cast-item" onclick="fetchCastDetails('{{ cast.id }}')">
+                <img src="https://image.tmdb.org/t/p/w200{{ cast.profile_path }}" alt="{{ cast.name }}">
+                <p><strong>{{ cast.name }}</strong></p>
+                <p>{{ cast.character }}</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Modal for Cast Details -->
+        <div id="cast-details-modal"
+             style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                    background: white; padding: 20px; z-index: 1000; color: black; width: 50%; max-height: 80vh;
+                    overflow: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+            <button onclick="closeCastModal()"
+                    style="position: absolute; top: 10px; right: 10px; background: red; color: white; border: none;
+                           padding: 5px 10px; cursor: pointer; border-radius: 5px;">
+                Close
+            </button>
+            <div id="cast-details-content"></div>
+        </div>
+
+        <script>
+        function fetchCastDetails(castId) {
+            fetch(`/cast_details/${castId}`)
+            .then(response => response.json())
+            .then(data => {
+                const modalContent = `
+                    <h2>${data.name}</h2>
+                    <p><strong>Biography:</strong> ${data.biography}</p>
+                    <p><strong>Date of Birth:</strong> ${data.birthday}</p>
+                    <p><strong>Place of Birth:</strong> ${data.place_of_birth}</p>
+                    <p><strong>Profile Path:</strong> <a href="https://image.tmdb.org/t/p/w500${data.profile_path}" target="_blank">View Profile</a></p>
+                `;
+                document.getElementById('cast-details-content').innerHTML = modalContent;
+                document.getElementById('cast-details-modal').style.display = 'block';
+            })
+            .catch(error => console.error('Error fetching cast details:', error));
+        }
+
+        function closeCastModal() {
+            document.getElementById('cast-details-modal').style.display = 'none';
+        }
+        </script>
+
+        <h2 class="section-title">Reviews</h2>
+
+        <!-- Button to Toggle Reviews -->
+        <button id="toggle-reviews-btn" onclick="toggleReviews()"
+                style="margin-bottom: 10px; padding: 10px; background: blue; color: white;
+                       border: none; cursor: pointer; border-radius: 5px;">
+            Show Reviews
+        </button>
+
+                    <!-- Review Section -->
+        <div id="reviews-container" style="display: none; background: white; padding: 10px;
+                                   border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+
+                    <!-- Existing Review -->
+    <div id="reviews-list">
+        {% for review in reviews %}
+        <div class="review-item" style="
+            color: {% if review.author_details and review.author_details.rating is defined and review.author_details.rating is not none %}
+                        {% if review.author_details.rating >= 6 %}green{% else %}red{% endif %}
+                   {% else %}black{% endif %};
+            border-bottom: 1px solid #ddd; padding: 10px;">
+
+            <p><strong>{{ review.author }}</strong></p>
+            <p><em>Rating:
+                {% if review.author_details and 'rating' in review.author_details and review.author_details.rating is not none %}
+                    {{ "%.1f"|format(review.author_details.rating) }}
+                {% else %}
+                    No Rating (Cannot classify as Good or Bad review)
+                {% endif %}
+            </em></p>
+            <p>{{ review.content }}</p>
+        </div>
+        {% else %}
+        <p>No reviews available.</p>
+        {% endfor %}
+    </div>
+</div>
+
+
+            <!-- Review Submission Form -->
+        <h3>Add Your Review</h3>
+        <form id="review-form" onsubmit="submitReview(event)">
+            <input type="text" id="review-author" placeholder="Your Name" required
+                   style="width: 100%; padding: 8px; margin-bottom: 10px;">
+
+            <textarea id="review-content" placeholder="Write your review..." required
+                      style="width: 100%; padding: 8px; margin-bottom: 10px;"></textarea>
+
+            <input type="number" id="review-rating" placeholder="Rating (1-10)" min="1" max="10" required
+                   style="width: 100%; padding: 8px; margin-bottom: 10px;">
+
+            <button type="submit"
+                    style="background: green; color: white; padding: 10px; border: none; cursor: pointer; border-radius: 5px;">
+                Submit Review
+            </button>
+        </form>
+        </div>
+
+        <script>
+    function toggleReviews() {
+    var reviewsContainer = document.getElementById('reviews-container');
+    var button = document.getElementById('toggle-reviews-btn');
+
+    if (reviewsContainer.style.display === "none") {
+        reviewsContainer.style.display = "block";
+        button.textContent = "Close Reviews";
+        button.style.background = "red";
+    } else {
+        reviewsContainer.style.display = "none";
+        button.textContent = "Show Reviews";
+        button.style.background = "blue";
+    }
+}
+
+        function submitReview(event) {
+            event.preventDefault(); // Prevents form from refreshing the page
+
+            var author = document.getElementById("review-author").value;
+            var content = document.getElementById("review-content").value;
+            var rating = parseFloat(document.getElementById("review-rating").value); // Convert rating to float
+
+            if (isNaN(rating) || rating < 1 || rating > 10) {
+                alert("Please enter a rating between 1 and 10.");
+                return;
+            }
+
+            var color = rating >= 6 ? "green" : "red"; // Classify review color
+
+            var newReview = `
+                <div class="review-item" style="color: ${color}; border-bottom: 1px solid #ddd; padding: 10px;">
+                    <p><strong>${author}</strong></p>
+                    <p><em>Rating: ${rating.toFixed(1)}</em></p> <!-- Italicize rating -->
+                    <p>${content}</p>
+                </div>
+            `;
+
+            document.getElementById("reviews-list").innerHTML += newReview; // Append new review
+
+            // Clear form fields
+            document.getElementById("review-form").reset();
+        }
+        </script>
+
+        <h2 class="section-title">Recommended Movies</h2>
+        <div class="movie-row">
+            {% for rec_movie in recommend_movies %}
+            <div class="movie-item">
+                <img src="https://image.tmdb.org/t/p/w200{{ rec_movie.poster_path }}" alt="{{ rec_movie.title }}">
+                <button class="watch-now-button" onclick="viewMovieDetails({{ rec_movie.id }})">WATCH NOW</button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div id="default-movies">
+            <h2 class="section-title">Trending</h2>
+            <div id="trending-movies-list" class="movie-row"></div>
+            <h2 class="section-title">Popular Trailers</h2>
+            <div id="latest-trailers-list" class="movie-row"></div>
+        </div>
+    </div>
+
+    <script>
+        function viewMovieDetails(movieId) {
+            window.location.href = `/movie_details/${movieId}`;
+        }
+    </script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
