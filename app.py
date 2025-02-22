@@ -240,7 +240,7 @@ def top_ten_movies():
             break
 
     return jsonify({
-        'top_ten_movies': top_ten_movies[:10]
+        'top_ten_movies': top_ten_movies[:20]
     })  # Return the top 10 movies as JSON
 
 
