@@ -265,9 +265,15 @@
         // This function is called when the player is ready
         function onPlayerReady(event) {
             console.log("Player is ready");
-            event.target.playVideo();  // Ensure autoplay starts
+        
+            event.target.playVideo(); // Start video
+            event.target.unMute(); // Unmute automatically
+        
+            // Fallback: Ensure sound is turned on after 2 seconds
+            setTimeout(() => {
+                player.unMute();
+            }, 2000);
         }
-
         // Toggle play/pause
         function toggleTrailer() {
             if (player && typeof player.getPlayerState === 'function') {
