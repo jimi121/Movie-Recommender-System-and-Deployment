@@ -248,6 +248,7 @@
                 videoId: '{{ trailer_url.split("embed/")[1] if trailer_url else "" }}',
                 'playerVars': {
                     'autoplay': 1,
+                    'mute': 1,
                     'loop': 1,
                     'playlist': '{{ trailer_url.split("embed/")[1] if trailer_url else "" }}',
                     'controls': 0,
