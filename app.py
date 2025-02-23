@@ -110,7 +110,7 @@ def get_combined_recommendations(movie_id):
         response = requests.get(url)  # Send an HTTP GET request to the URL
         data = response.json()  # Parse the response as JSON
         combined_recs = [movie['id'] for movie in data['results']]  # Extract movie IDs from the results
-    return combined_recs[:10]  # Return the top 10 recommendations
+    return combined_recs[:20]  # Return the top 10 recommendations
 
 
 # Save the model
