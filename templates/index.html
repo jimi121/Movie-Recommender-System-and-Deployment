@@ -266,14 +266,19 @@
         function onPlayerReady(event) {
             console.log("Player is ready");
         
-            event.target.playVideo(); // Start video
-            event.target.unMute(); // Unmute automatically
-        
-            // Fallback: Ensure sound is turned on after 2 seconds
-            setTimeout(() => {
-                player.unMute();
-            }, 2000);
+            event.target.playVideo(); // Start playing immediately
+            event.target.mute(); // Ensure autoplay works by starting muted
+
+            // Show "Unmute" button after autoplay starts
+            document.getElementById("unmute-btn").style.display = "block";
         }
+
+        // Function to manually unmute the video
+        function unmuteVideo() {
+            player.unMute();
+            document.getElementById("unmute-btn").style.display = "none"; // Hide button after unmuting
+        }
+        
         // Toggle play/pause
         function toggleTrailer() {
             if (player && typeof player.getPlayerState === 'function') {
