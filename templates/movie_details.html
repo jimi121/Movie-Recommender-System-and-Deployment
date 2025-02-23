@@ -159,16 +159,16 @@
     </header>
     <button id="play-pause-button" onclick="toggleTrailer()">Pause</button>
 
-    <button onclick="goToHomePage()" 
-        style="position: fixed; top: 20px; left: 20px; background: blue; color: white; 
-               padding: 10px 15px; border: none; cursor: pointer; border-radius: 5px;">
+    <button id="backToHomeBtn"
+        style="position: fixed; top: 20px; right: 20px; background: blue; color: white;
+               padding: 10px 15px; border: none; cursor: pointer; border-radius: 5px; z-index: 9999;">
     ⬅ Go Back to Home
     </button>
 
     <script>
-    function goToHomePage() {
-        window.location.href = "/"; // Redirect to home page
-    }
+    document.getElementById("backToHomeBtn").addEventListener("click", function() {
+        window.location.href = "/"; // Redirects to home page
+    });
     </script>
     
     <script>
