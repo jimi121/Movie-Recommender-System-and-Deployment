@@ -246,7 +246,7 @@
                 height: '100%',
                 width: '100%',
                 videoId: '{{ trailer_url.split("embed/")[1] if trailer_url else "" }}',
-                playerVars: {
+                'playerVars': {
                     'autoplay': 1,
                     'loop': 1,
                     'playlist': '{{ trailer_url.split("embed/")[1] if trailer_url else "" }}',
@@ -264,6 +264,7 @@
         // This function is called when the player is ready
         function onPlayerReady(event) {
             console.log("Player is ready");
+            event.target.playVideo();  // Ensure autoplay starts
         }
 
         // Toggle play/pause
