@@ -92,7 +92,7 @@ def get_collaborative_recommendations(movie_id):
 
     try:
         movie_idx = list(ratings_df['id']).index(movie_id)
-        distances, indices = knn.kneighbors(ratings_matrix[:, movie_idx].reshape(1, -1), n_neighbors=11)
+        distances, indices = knn.kneighbors(ratings_matrix[:, movie_idx].reshape(1, -1), n_neighbors=21)
         movie_indices = [ratings_df['id'].iloc[i] for i in indices.flatten()][1:]
         return movie_indices
     except ValueError as e:
