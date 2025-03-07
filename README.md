@@ -1,6 +1,6 @@
 # 🎥 MovixCloud: A Hybrid Movie Recommendation System
 
-![](https://github.com/jimi121/POWER-BI-PROJECTS/blob/main/Loan%20Portfolio%20Risk%20Analysis/Loan%20risk.jpg)
+![](https://github.com/jimi121/Movie-Recommender-System-and-Deployment/blob/main/static/img/image.png)
 
 An end-to-end **hybrid movie recommendation system** combining content-based and collaborative filtering techniques to deliver personalized movie suggestions. This project demonstrates expertise in data acquisition, preprocessing, modeling, evaluation, and deployment.
 
