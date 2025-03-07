@@ -228,7 +228,7 @@ Experience the project live by visiting the deployed version:
 ### Video Walkthrough
 Below is a demonstration of project's key features, including hybrid recommendations, real-time data fetching, and interactive user interface:
 
-![Project Demo](path/to/demo.gif)  
+![Project Demo](https://github.com/jimi121/Movie-Recommender-System-and-Deployment/blob/main/project_demo/video_demo.mp4)  
 *Figure: A walkthrough of project's main functionalities.*
 
 ---
